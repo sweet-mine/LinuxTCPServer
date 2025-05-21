@@ -1,5 +1,14 @@
-﻿#include "Common.h"
+/*
+File Name : LinuxTCPServer.cpp
+Author: 이시행
+Purpose: 
+Create date :
+Modified date :
+*/
+
+#include "Common.h"
 #include "SocketEvent.h"
+#include "Application.h"
 
 int main(int argc, char* argv[])
 {
@@ -45,96 +54,22 @@ int main(int argc, char* argv[])
 	socklen_t addrlen;
 
 	while (1) {
-		// epoll_wait()
 		nready = epoll_wait(epollfd, events, FD_SETSIZE, -1);
 		if (nready < 0) err_quit("epoll_wait()");
 
 		for (int i = 0; i < nready; i++) {
 			SOCKETINFO* ptr = (SOCKETINFO*)events[i].data.ptr;
-			// 소켓 이벤트 검사(1): 클라이언트 접속 수용
-			if (ptr->sock == listen_sock) {
-				addrlen = sizeof(clientaddr);
-				client_sock = accept(listen_sock,
-					(struct sockaddr*)&clientaddr, &addrlen);
-				if (client_sock == INVALID_SOCKET) {
-					err_display("accept()");
-					goto MAIN_EXIT;
-				}
-				else {
-					// 클라이언트 정보 출력
-					char addr[INET_ADDRSTRLEN];
-					inet_ntop(AF_INET, &clientaddr.sin_addr, addr, sizeof(addr));
-					printf("\n[TCP 서버] 클라이언트 접속: IP 주소=%s, 포트 번호=%d\n",
-						addr, ntohs(clientaddr.sin_port));
-					// 넌블로킹 소켓으로 전환
-					int flags = fcntl(client_sock, F_GETFL);
-					flags |= O_NONBLOCK;
-					fcntl(client_sock, F_SETFL, flags);
-					// 소켓 이벤트 등록(2)
-					RegisterEvent(epollfd, client_sock, EPOLLIN);
-				}
-				if (--nready <= 0)
-					break;
-			} /* end of if */
-			// 소켓 이벤트 검사(2): 데이터 통신
-			else {
-				// 클라이언트 정보 얻기
-				addrlen = sizeof(clientaddr);
-				getpeername(ptr->sock, (struct sockaddr*)&clientaddr, &addrlen);
-				char addr[INET_ADDRSTRLEN];
-				inet_ntop(AF_INET, &clientaddr.sin_addr, addr, sizeof(addr));
 
-				if (events[i].events & EPOLLIN) {
-					// 데이터 받기
-					retval = recv(ptr->sock, ptr->buf, BUFSIZE, 0);
-					if (retval == SOCKET_ERROR) {
-						err_display("recv()");
-						// 소켓 이벤트 등록 해제(1)
-						epoll_ctl(epollfd, EPOLL_CTL_DEL, ptr->sock, NULL);
-						close(ptr->sock); delete ptr;
-					}
-					else if (retval == 0) {
-						// 클라이언트 정보 출력
-						printf("[TCP 서버] 클라이언트 종료: IP 주소=%s, "
-							"포트 번호=%d\n", addr, ntohs(clientaddr.sin_port));
-						// 소켓 이벤트 등록 해제(2)
-						epoll_ctl(epollfd, EPOLL_CTL_DEL, ptr->sock, NULL);
-						close(ptr->sock); delete ptr;
-					}
-					else {
-						ptr->recvbytes = retval;
-						// 받은 데이터 출력
-						ptr->buf[ptr->recvbytes] = '\0';
-						printf("[TCP/%s:%d] %s\n", addr,
-							ntohs(clientaddr.sin_port), ptr->buf);
-						// 소켓 이벤트 재등록(1)
-						if (ptr->recvbytes > ptr->sendbytes) {
-							ModifyEvent(epollfd, events[i], EPOLLOUT);
-						}
-					}
-				}
-				else if (events[i].events & EPOLLOUT) {
-					// 데이터 보내기
-					retval = send(ptr->sock, ptr->buf + ptr->sendbytes,
-						ptr->recvbytes - ptr->sendbytes, 0);
-					if (retval == SOCKET_ERROR) {
-						err_display("send()");
-						// 소켓 이벤트 등록 해제(3)
-						epoll_ctl(epollfd, EPOLL_CTL_DEL, ptr->sock, NULL);
-						close(ptr->sock); delete ptr;
-					}
-					else {
-						ptr->sendbytes += retval;
-						// 소켓 이벤트 재등록(2)
-						if (ptr->recvbytes == ptr->sendbytes) {
-							ptr->recvbytes = ptr->sendbytes = 0;
-							ModifyEvent(epollfd, events[i], EPOLLIN);
-						}
-					}
-				}
-			} /* end of else */
-		} /* end of for */
-	} /* end of while (1) */
+			if (ptr->sock == listen_sock) {
+				HandleAcceptEvent(epollfd, listen_sock);
+			}
+			else {
+				HandleClientEvent(epollfd, events[i]);
+			}
+			if (--nready <= 0) break;
+		}
+	}
+
 
 MAIN_EXIT:
 	// EPoll 인스턴스 삭제
