@@ -3,7 +3,8 @@ File Name : SocketEvent.cpp
 Author: 이시행
 Purpose: epoll 사용을 위한 함수 정의
 Create date : 2025-05-21
-Modified date : 2025-05-21
+Modified date : 2025-06-10
+Modification : id 멤버 추가로 인한 수정
 */
 #include "SocketEvent.h"
 
@@ -12,9 +13,8 @@ SOCKETINFO* RegisterEvent(int epollfd, SOCKET sock, uint32_t events, string id)
 {
 	SOCKETINFO* ptr = new SOCKETINFO;
 	ptr->sock = sock;
-	ptr->recvbytes = 0;
-	ptr->sendbytes = 0;
 	ptr->id = id;
+	ptr->bytes = 0;
 	struct epoll_event ev;
 	ev.events = events;
 	ev.data.ptr = ptr;

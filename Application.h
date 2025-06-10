@@ -9,6 +9,7 @@ Modified date : 2025-05-22
 #include "Common.h"
 #include "SocketEvent.h"
 #include "UserData.h"
+#include "Message.h"
 
 void HandleAcceptEvent(int epollfd, SOCKET listen_sock);
 void HandleClientEvent(int epollfd, struct epoll_event& ev);

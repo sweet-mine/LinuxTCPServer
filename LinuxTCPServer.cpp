@@ -17,6 +17,10 @@ int main(int argc, char* argv[])
 	SOCKET listen_sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (listen_sock == INVALID_SOCKET) err_quit("socket()");
 
+	// 디버깅용 reuseaddr 옵션 설정
+	int optval = 1;
+	setsockopt(listen_sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+
 	// bind()
 	struct sockaddr_in serveraddr;
 	memset(&serveraddr, 0, sizeof(serveraddr));
@@ -43,7 +47,7 @@ int main(int argc, char* argv[])
 	}
 
 	// 소켓 이벤트 등록(1)
-	RegisterEvent(epollfd, listen_sock, EPOLLIN, 0);
+	RegisterEvent(epollfd, listen_sock, EPOLLIN, "");
 
 	// 데이터 통신에 사용할 변수
 	struct epoll_event events[FD_SETSIZE];
