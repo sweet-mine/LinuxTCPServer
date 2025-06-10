@@ -1,14 +1,20 @@
-#include "Common.h"
+/*
+File Name : SocketEvent.cpp
+Author: ì´ì‹œí–‰
+Purpose: epoll ì‚¬ìš©ì„ ìœ„í•œ í•¨ìˆ˜ ì •ì˜
+Create date : 2025-05-21
+Modified date : 2025-05-21
+*/
 #include "SocketEvent.h"
 
-// ¼ÒÄÏ ÀÌº¥Æ® µî·Ï ÇÔ¼ö
-void RegisterEvent(int epollfd, SOCKET sock, uint32_t events)
+// ì†Œì¼“ ì´ë²¤íŠ¸ ë“±ë¡ í›„ ë°˜í™˜ í•¨ìˆ˜
+SOCKETINFO* RegisterEvent(int epollfd, SOCKET sock, uint32_t events, string id)
 {
 	SOCKETINFO* ptr = new SOCKETINFO;
 	ptr->sock = sock;
 	ptr->recvbytes = 0;
 	ptr->sendbytes = 0;
-
+	ptr->id = id;
 	struct epoll_event ev;
 	ev.events = events;
 	ev.data.ptr = ptr;
@@ -17,9 +23,10 @@ void RegisterEvent(int epollfd, SOCKET sock, uint32_t events)
 		close(sock);
 		exit(1);
 	}
+	return ptr;
 }
 
-// ¼ÒÄÏ ÀÌº¥Æ® ¼öÁ¤ ÇÔ¼ö
+// ì†Œì¼“ ì´ë²¤íŠ¸ ìˆ˜ì • í•¨ìˆ˜
 void ModifyEvent(int epollfd, struct epoll_event ev, uint32_t events)
 {
 	ev.events = events;

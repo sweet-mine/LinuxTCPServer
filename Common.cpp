@@ -1,6 +1,14 @@
+/*
+File Name : Common.cpp
+Author: ì´ì‹œí–‰
+Purpose: ì—ëŸ¬ ì²˜ë¦¬ í•¨ìˆ˜ ì •ì˜
+Create date : 2025-05-21
+Modified date : 2025-05-21
+*/
+
 #include "Common.h"
 
-// ¼ÒÄÏ ÇÔ¼ö ¿À·ù Ãâ·Â ÈÄ Á¾·á
+// ì†Œì¼“ í•¨ìˆ˜ ì˜¤ë¥˜ ì¶œë ¥ í›„ ì¢…ë£Œ
 void err_quit(const char* msg)
 {
 	char* msgbuf = strerror(errno);
@@ -8,16 +16,16 @@ void err_quit(const char* msg)
 	exit(1);
 }
 
-// ¼ÒÄÏ ÇÔ¼ö ¿À·ù Ãâ·Â
+// ì†Œì¼“ í•¨ìˆ˜ ì˜¤ë¥˜ ì¶œë ¥
 void err_display(const char* msg)
 {
 	char* msgbuf = strerror(errno);
 	printf("[%s] %s\n", msg, msgbuf);
 }
 
-// ¼ÒÄÏ ÇÔ¼ö ¿À·ù Ãâ·Â
+// ì†Œì¼“ í•¨ìˆ˜ ì˜¤ë¥˜ ì¶œë ¥
 void err_display(int errcode)
 {
 	char* msgbuf = strerror(errcode);
-	printf("[¿À·ù] %s\n", msgbuf);
+	printf("[ì˜¤ë¥˜] %s\n", msgbuf);
 }

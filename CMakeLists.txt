@@ -1,4 +1,4 @@
-﻿# CMakeList.txt: LinuxTCPServer에 대한 CMake 프로젝트, 여기에 소스를 포함하고
+# CMakeList.txt: LinuxTCPServer에 대한 CMake 프로젝트, 여기에 소스를 포함하고
 # 프로젝트 특정 논리를 정의합니다.
 #
 cmake_minimum_required (VERSION 3.8)
@@ -12,7 +12,7 @@ endif()
 project ("LinuxTCPServer")
 
 # 이 프로젝트의 실행 파일에 소스를 추가합니다.
-add_executable (LinuxTCPServer "LinuxTCPServer.cpp" "Common.h" "SocketEvent.cpp" "SocketEvent.h" "Common.cpp"  "Application.h" "Application.cpp")
+add_executable (LinuxTCPServer "LinuxTCPServer.cpp" "Common.h" "SocketEvent.cpp" "SocketEvent.h" "Common.cpp"  "Application.h" "Application.cpp" "userData.h" "userData.cpp")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET LinuxTCPServer PROPERTY CXX_STANDARD 20)

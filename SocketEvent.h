@@ -1,15 +1,26 @@
+/*
+File Name : SocketEvent.h
+Author: ì´ì‹œí–‰
+Purpose: epoll ì‚¬ìš©ì„ ìœ„í•œ êµ¬ì¡°ì²´ ë° í•¨ìˆ˜ ì„ ì–¸
+Create date : 2025-05-21
+Modified date : 2025-05-21
+*/
+
 #pragma once
-// ¼ÒÄÏ Á¤º¸ ÀúÀåÀ» À§ÇÑ ±¸Á¶Ã¼
+#include "Common.h"
+
+// ì†Œì¼“(ìœ ì €) ì •ë³´ ì €ì¥ì„ ìœ„í•œ êµ¬ì¡°ì²´
 struct SOCKETINFO
 {
+	string id;
 	SOCKET sock;
 	char buf[BUFSIZE + 1];
 	int recvbytes;
 	int sendbytes;
 };
 
-// ¼ÒÄÏ ÀÌº¥Æ® µî·Ï ÇÔ¼ö
-void RegisterEvent(int epollfd, SOCKET sock, uint32_t events);
-// ¼ÒÄÏ ÀÌº¥Æ® ¼öÁ¤ ÇÔ¼ö
+// ì†Œì¼“ ì´ë²¤íŠ¸ ë“±ë¡ í•¨ìˆ˜
+SOCKETINFO* RegisterEvent(int epollfd, SOCKET sock, uint32_t events, string id);
+// ì†Œì¼“ ì´ë²¤íŠ¸ ìˆ˜ì • í•¨ìˆ˜
 void ModifyEvent(int epollfd, struct epoll_event ev, uint32_t events);
 

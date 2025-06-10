@@ -1,13 +1,12 @@
 /*
 File Name : LinuxTCPServer.cpp
 Author: 이시행
-Purpose: 
-Create date :
-Modified date :
+Purpose: main
+Create date : 2025-05-21
+Modified date : 2025-05-22
 */
 
 #include "Common.h"
-#include "SocketEvent.h"
 #include "Application.h"
 
 int main(int argc, char* argv[])
@@ -44,7 +43,7 @@ int main(int argc, char* argv[])
 	}
 
 	// 소켓 이벤트 등록(1)
-	RegisterEvent(epollfd, listen_sock, EPOLLIN);
+	RegisterEvent(epollfd, listen_sock, EPOLLIN, 0);
 
 	// 데이터 통신에 사용할 변수
 	struct epoll_event events[FD_SETSIZE];
