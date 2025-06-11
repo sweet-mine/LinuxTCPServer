@@ -113,12 +113,22 @@ void HandleClientEvent(int epollfd, struct epoll_event& ev) {
         }
     }
 
-    // TODO : 서버 송신부 고정+가변 처리 및 케이스 나누기
+    // TODO : 서버 송수신부 헤더에 따라 케이스 나누기
     else if (ev.events & EPOLLOUT) {
         int retval;
         // 모든 유저에게 전송
         for (pair<string, SOCKETINFO*> data : userList) {
             SOCKET sock = data.second->sock;
+            header = make_header(ptr->is_group, ptr->is_file, ptr->bytes); // 헤더 생성
+            
+            // 헤더 전송
+            retval = send(sock, (char*)header, 32, 0);
+            if (retval == SOCKET_ERROR) {
+                err_display("send()");
+                epoll_ctl(epollfd, EPOLL_CTL_DEL, ptr->sock, NULL);
+                close(ptr->sock); delete ptr;
+            }
+
             retval = send(sock, ptr->buf, ptr->bytes, 0);
             if (retval == SOCKET_ERROR) {
                 err_display("send()");
