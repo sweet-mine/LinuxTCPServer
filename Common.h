@@ -23,7 +23,7 @@ Modified date : 2025-05-21
 #include <errno.h> // errno
 
 #include <vector>
-#include <queue>
+#include <deque>
 #include <string>
 #include <map>
 using namespace std;
@@ -35,7 +35,7 @@ typedef int SOCKET;
 
 // 서버 포트, 버퍼 사이즈 정의
 #define SERVERPORT 9000
-#define BUFSIZE    512
+#define BUFSIZE    4096 // 4KB 버퍼
 
 // 소켓 함수 오류 출력 후 종료
 void err_quit(const char* msg);

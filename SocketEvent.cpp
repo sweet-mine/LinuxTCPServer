@@ -3,8 +3,8 @@ File Name : SocketEvent.cpp
 Author: 이시행
 Purpose: epoll 사용을 위한 함수 정의
 Create date : 2025-05-21
-Modified date : 2025-06-10
-Modification : id 멤버 추가로 인한 수정
+Modified date : 2025-06-12
+Modification : broadcast, unicast 기능 추가
 */
 #include "SocketEvent.h"
 
@@ -14,7 +14,9 @@ SOCKETINFO* RegisterEvent(int epollfd, SOCKET sock, uint32_t events, string id)
 	SOCKETINFO* ptr = new SOCKETINFO;
 	ptr->sock = sock;
 	ptr->id = id;
-	ptr->bytes = 0;
+	ptr->recvbytes = 0;
+	ptr->sendbytes = 0;
+	ptr->hsendbytes = 0;
 	struct epoll_event ev;
 	ev.events = events;
 	ev.data.ptr = ptr;
@@ -36,4 +38,36 @@ void ModifyEvent(int epollfd, struct epoll_event ev, uint32_t events)
 		close(ptr->sock);
 		exit(1);
 	}
+}
+
+// UserList에 있는 모든 사용자에게 브로드캐스트(EPOLLOUT)
+void broadcast(int epollfd, SOCKETINFO* sender, uint32_t header, MSGTYPE msg, uint32_t recvbytes) {
+	for (auto& [id, user] : userList) {
+		if (user == sender) continue;  // 자신 제외
+		user->header = header;
+		user->recvbytes = recvbytes;
+		user->msg = msg;
+
+		struct epoll_event ev;
+		ev.events = EPOLLOUT;
+		ev.data.ptr = user;
+		epoll_ctl(epollfd, EPOLL_CTL_MOD, user->sock, &ev);
+	}
+}
+
+// UserList에 있는 특정 사용자에게 전송(EPOLLOUT)
+void unicast(int epollfd, uint32_t header, MSGTYPE msg, uint32_t recvbytes) {
+	auto it = userList.find(string(msg.dst));
+	if(it == userList.end()) {
+		printf("Error: User not found for unicast.\n");
+		return;
+	}
+	SOCKETINFO* reciever = it->second;
+	reciever->header = header;
+	reciever->recvbytes = recvbytes;
+	reciever->msg = msg;
+	struct epoll_event ev;
+	ev.events = EPOLLOUT;
+	ev.data.ptr = reciever;
+	epoll_ctl(epollfd, EPOLL_CTL_MOD, reciever->sock, &ev);
 }

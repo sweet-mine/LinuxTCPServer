@@ -73,7 +73,6 @@ int main(int argc, char* argv[])
 		}
 	}
 
-
 MAIN_EXIT:
 	// EPoll 인스턴스 삭제
 	close(epollfd);
